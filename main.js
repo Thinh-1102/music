@@ -15,15 +15,21 @@ const btnPrev = $('.btn-prev');
 const btnRandom = $('.btn-random')
 const btnRepeat = $('.btn-repeat')
 const playList = $('.playlist')
+const volume = $('.volume');
+const columeIcon = $('.volume-icon');
+const volumeMute = $('.volume-icon-off');
+const volumeDown = $('.volume-icon-down');
+const volumeUp = $('.volume-icon-up')
 const app = {
     isPlaying: false,
     isRandom: false,
     isRepeat: false,
+    isMute: false,
     currenIndex: 0,
     settingSave: JSON.parse(localStorage.getItem(PLAYER_STORAGE_KEY)) || {},
     setting: function (key, value) {
         this.settingSave[key] = value;
-        localStorage.setItem(PLAYER_STORAGE_KEY,JSON.stringify(this.settingSave))
+        localStorage.setItem(PLAYER_STORAGE_KEY, JSON.stringify(this.settingSave))
     },
     listSong: [
         {
@@ -197,6 +203,13 @@ const app = {
             cd.style.width = newCdWidth > 0 ? newCdWidth + 'px' : 0;
             cd.style.opacity = newCdWidth / cdWidth
         }
+
+        // thay đổi âm lượng theo thanh volume
+        volume.onchange = function (e) {
+            const seekVolume = e.target.value / 100
+            audio.volume = seekVolume;    
+        }
+
         // xử lý nút play
         playBtn.onclick = function () {
             if (app.isPlaying) {
@@ -238,24 +251,24 @@ const app = {
             btnNext.onclick = function () {
                 if (app.isRandom) {
                     app.randomSong()
-                    audio.play()
                 } else {
                     app.nextSong()
-                    audio.play()
                 }
+                audio.play()
                 app.render()
+                app.scroollToactiveToSong()
             }
 
             // khi bam nut prev
             btnPrev.onclick = function () {
                 if (app.isRandom) {
                     app.randomSong()
-                    audio.play()
                 } else {
                     app.prevSong()
-                    audio.play()
                 }
+                audio.play()
                 app.render()
+                app.scroollToactiveToSong()
             }
 
             // khi bam randomSong
@@ -313,7 +326,6 @@ const app = {
             this.currenIndex = 0
         }
         this.loadCurrenSong()
-        this.scroollToactiveToSong()
     },
     prevSong: function () {
         this.currenIndex--;
@@ -321,7 +333,6 @@ const app = {
             this.currenIndex = this.listSong.length - 1
         }
         this.loadCurrenSong()
-        this.scroollToactiveToSong()
     },
     randomSong: function () {
         let newIndex = this.currenIndex;
@@ -344,7 +355,7 @@ const app = {
         this.handleEvent()
         this.loadCurrenSong()
         this.render()
-        
+
         btnRepeat.classList.toggle('active', this.isRepeat)
         btnRandom.classList.toggle('active', this.isRandom)
     }
